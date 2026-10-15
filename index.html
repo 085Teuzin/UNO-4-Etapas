@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎮 UNO 4 Etapas - Made By: @085_Teuzinnn</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        :root {
+            --bg-body: #090a0f;
+            --bg-card: #12151e;
+            --bg-glass: rgba(18, 21, 30, 0.75);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --color-teuzin: #ff6b4a;
+            --color-fulana: #ff3399;
+            --correct: #00e676;
+            --wrong: #ff1744;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(255, 255, 255, 0.15);
+            --accent-glow: rgba(255, 51, 153, 0.15);
+            --uno-red: #ff5555;
+            --uno-blue: #5555ff;
+            --uno-green: #2ed573;
+            --uno-yellow: #ffa801;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(255, 107, 74, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(255, 51, 153, 0.08) 0%, transparent 40%);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        #header-bar {
+            width: 100%;
+            min-height: 56px;
+            max-height: 56px;
+            flex-shrink: 0;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 10;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-title {
+            font-size: clamp(15px, 4.5vw, 18px);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--color-teuzin), var(--color-fulana));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-transform: uppercase;
+        }
+        .header-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: 15px;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            outline: none;
+            flex-shrink: 0;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .header-btn:active {
+            transform: scale(0.92);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        #game-stats {
+            width: 100%;
+            flex-shrink: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: rgba(18, 21, 30, 0.4);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 14px;
+            text-align: center;
+            gap: 12px;
+        }
+        .player-stat-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 3px;
+            padding: 8px 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            min-width: 0;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid transparent;
+        }
+        #box-p1 .stat-label { color: var(--color-teuzin); }
+        #box-p2 .stat-label { color: var(--color-fulana); }
+        
+        #box-p1.active-turn {
+            background: rgba(255, 107, 74, 0.1);
+            border-color: rgba(255, 107, 74, 0.3);
+            box-shadow: 0 4px 20px rgba(255, 107, 74, 0.15);
+        }
+        #box-p2.active-turn {
+            background: rgba(255, 51, 153, 0.1);
+            border-color: rgba(255, 51, 153, 0.3);
+            box-shadow: 0 4px 20px rgba(255, 51, 153, 0.15);
+        }
+        .stat-label {
+            font-size: clamp(13px, 3.8vw, 15px);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .stat-meta {
+            font-size: clamp(11px, 3.2vw, 13px);
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        #game-container {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            overflow: hidden;
+            position: relative;
+            min-height: 0;
+        }
+
+        #setup-screen {
+            width: 100%;
+            max-width: 380px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        #setup-screen::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--color-teuzin), var(--color-fulana));
+            border-radius: 20px 20px 0 0;
+        }
+        .lobby-buttons-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            width: 100%;
+        }
+        .btn-primary {
+            border: none;
+            color: #fff;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: clamp(13px, 3.8vw, 15px);
+            cursor: pointer;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+        }
+        .btn-primary:active { transform: scale(0.96); }
+        #btn-join-p1 { 
+            background: linear-gradient(135deg, #ff6b4a, #ff793f);
+            box-shadow: 0 6px 20px rgba(255, 107, 74, 0.25);
+        }
+        #btn-join-p2 { 
+            background: linear-gradient(135deg, #ff3399, #ff1493);
+            box-shadow: 0 6px 20px rgba(255, 51, 153, 0.25);
+        }
+
+        #game-screen {
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            min-height: 0;
+        }
+
+        #turn-bar {
+            text-align: center;
+            font-size: clamp(12px, 3.5vw, 14px);
+            font-weight: 700;
+            color: var(--text-main);
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            flex-shrink: 0;
+            letter-spacing: 0.3px;
+        }
+
+        #table-board {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            background: rgba(18, 21, 30, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(9, 10, 15, 0.88);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 24px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 500;
+            animation: fadeInModal 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .win-card {
+            width: 100%;
+            max-width: 320px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .win-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--color-teuzin), var(--color-fulana));
+        }
+
+        .win-title { font-size: clamp(20px, 5.5vw, 24px); font-weight: 900; letter-spacing: 0.5px; }
+        .win-message { font-size: clamp(13px, 3.8vw, 15px); color: var(--text-muted); font-weight: 500; }
+
+        .win-scores {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 10px;
+        }
+
+        .win-score-box { display: flex; flex-direction: column; gap: 4px; }
+        .win-player-name { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .win-p1-name { color: var(--color-teuzin); }
+        .win-p2-name { color: var(--color-fulana); }
+        .win-player-score { font-size: 24px; font-weight: 900; color: #fff; }
+        .win-vs { font-size: 11px; font-weight: 900; color: var(--text-muted); opacity: 0.6; }
+
+        .btn-primary-win {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, var(--color-teuzin), var(--color-fulana));
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-primary-win:active { transform: scale(0.96); }
+
+        #credits {
+            width: 100%;
+            flex-shrink: 0;
+            text-align: center;
+            padding: 8px;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--bg-glass);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid var(--border);
+            letter-spacing: 0.5px;
+        }
+
+        .uno-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            gap: 10px;
+        }
+
+        .stage-banner {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 6px 14px;
+            font-size: clamp(12px, 3.5vw, 14px);
+            font-weight: 800;
+            color: #fff;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .cards-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            flex: 1;
+            perspective: 1000px;
+        }
+
+        .uno-card {
+            width: clamp(58px, 18vw, 75px);
+            height: clamp(88px, 27vw, 112px);
+            border-radius: 10px;
+            border: 3px solid #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .uno-card.card-red { background: var(--uno-red); }
+        .uno-card.card-blue { background: var(--uno-blue); }
+        .uno-card.card-green { background: var(--uno-green); }
+        .uno-card.card-yellow { background: var(--uno-yellow); }
+
+        .uno-card.card-back {
+            background: #111;
+            border-color: #ffaa00;
+            background-image: radial-gradient(#222 15%, transparent 16%);
+            background-size: 10px 10px;
+        }
+
+        .card-inner-oval {
+            width: 80%;
+            height: 75%;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50% / 40%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-25deg);
+        }
+
+        .card-val {
+            font-size: clamp(22px, 7vw, 32px);
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+            transform: rotate(25deg);
+        }
+
+        .uno-card-back-title {
+            color: #ffaa00;
+            font-size: clamp(14px, 4.5vw, 18px);
+            font-weight: 900;
+            font-style: italic;
+            transform: rotate(-25deg);
+            text-shadow: 0 0 5px rgba(255, 170, 0, 0.8);
+        }
+
+        .feedback-banner {
+            min-height: 24px;
+            font-size: clamp(11px, 3.3vw, 13px);
+            font-weight: 800;
+            text-align: center;
+        }
+        .feedback-success { color: var(--correct); }
+        .feedback-fail { color: var(--wrong); }
+
+        .options-panel {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .opt-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 800;
+            font-size: clamp(12px, 3.5vw, 14px);
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: transform 0.1s ease, filter 0.2s ease;
+            outline: none;
+        }
+        .opt-btn:active { transform: scale(0.95); }
+        .opt-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        .btn-red { background: var(--uno-red); }
+        .btn-blue { background: var(--uno-blue); }
+        .btn-green { background: var(--uno-green); }
+        .btn-yellow { background: var(--uno-yellow); }
+        .btn-action { background: #2a3447; border: 1px solid var(--border); }
+        .btn-action:not(:disabled):hover { background: #3b4861; }
+    </style>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+                "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="header-bar">
+        <div id="app-title" class="logo-title">🎮 UNO 4 Etapas 🕹</div>
+        <div class="header-actions">
+            <button id="btn-toggle-music" class="header-btn" title="Áudio">🔊</button>
+            <button id="btn-reset-game" class="header-btn" title="Reiniciar Partida">🔄</button>
+        </div>
+    </div>
+
+    <div id="game-stats">
+        <div id="box-p1" class="player-stat-box">
+            <span class="stat-label">Teuzin <span id="dot-p1">🔴</span></span>
+            <span id="meta-p1" class="stat-meta">0 Pts</span>
+        </div>
+        <div id="box-p2" class="player-stat-box">
+            <span class="stat-label"><span id="dot-p2">🔴</span> Fulana</span>
+            <span id="meta-p2" class="stat-meta">0 Pts</span>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div id="setup-screen">
+            <div class="lobby-buttons-row">
+                <button class="btn-primary" id="btn-join-p1">👦 Teuzin</button>
+                <button class="btn-primary" id="btn-join-p2">👧 Fulana</button>
+            </div>
+        </div>
+
+        <div id="game-screen">
+            <div id="turn-bar">
+                <span id="status-text">Aguardando...</span>
+            </div>
+            
+            <div id="table-board"></div>
+
+            <div id="victory-modal" class="modal-overlay">
+                <div class="win-card">
+                    <div id="win-title" class="win-title">🏅 VITÓRIA!</div>
+                    <div id="win-message" class="win-message">você venceu essa rodada!</div>
+                    <div class="win-scores">
+                        <div class="win-score-box">
+                            <span class="win-player-name win-p1-name">Teuzin</span>
+                            <span id="win-score-p1" class="win-player-score">0</span>
+                        </div>
+                        <div class="win-vs">VS</div>
+                        <div class="win-score-box">
+                            <span class="win-player-name win-p2-name">Fulana</span>
+                            <span id="win-score-p2" class="win-player-score">0</span>
+                        </div>
+                    </div>
+                    <button id="btn-restart-win" class="btn-primary-win">🎮 Mais Uma </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="credits">Made By: @085_Teuzinnn</div>
+
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getDatabase, ref, set, update, onValue, runTransaction, onDisconnect } from "firebase/database";
+
+        const GAME_CONFIG = {
+            title: "🎮 UNO 4 Etapas 🕹",
+            dbFolder: "UNO4Etapas"
+        };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqRAsWfP4w-r82PZOaJcDck7W8Aeph3p8",
+            authDomain: "teuzin-games.firebaseapp.com",
+            databaseURL: "https://teuzin-games-default-rtdb.firebaseio.com",
+            projectId: "teuzin-games",
+            storageBucket: "teuzin-games.firebasestorage.app",
+            messagingSenderId: "548192563345",
+            appId: "1:548192563345:web:e729e39f9f266aa6a68f30"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const roomRef = ref(db, GAME_CONFIG.dbFolder);
+
+        let myID = "";
+        let currentGameState = null;
+        let isMuted = false;
+        let lastAudioEventId = 0;
+
+        let music = new Audio("music.mp3");
+        music.loop = true;
+        music.volume = 0.05;
+
+        const audioWinP1 = new Audio("vt1.mp3");
+        const audioWinP2 = new Audio("vt2.mp3");
+        const audioDraw = new Audio("emp.mp3");
+        const audioGo = new Audio("go.mp3");
+
+        const audioBpc = new Audio("bpc.mp3");
+        const audioBrm = new Audio("brm.mp3");
+        const audioBrn = new Audio("brn.mp3");
+        const audioBtf = new Audio("btf.mp3");
+        const audioBtd = new Audio("btd.mp3");
+        const audioPep = new Audio("pep.mp3");
+        const audioPnm = new Audio("pnm.mp3");
+        const audioPnn = new Audio("pnn.mp3");
+        const audioPtd = new Audio("ptd.mp3");
+        const audioPtf = new Audio("ptf.mp3");
+        const audioEdp = new Audio("edp.mp3");
+
+        const audioMap = {
+            "go": audioGo,
+            "vt1": audioWinP1,
+            "vt2": audioWinP2,
+            "emp": audioDraw,
+            "bpc": audioBpc,
+            "brm": audioBrm,
+            "brn": audioBrn,
+            "btf": audioBtf,
+            "btd": audioBtd,
+            "pep": audioPep,
+            "pnm": audioPnm,
+            "pnn": audioPnn,
+            "ptd": audioPtd,
+            "ptf": audioPtf,
+            "edp": audioEdp
+        };
+
+        function playLocalAudio(audioKey) {
+            if (!isMuted && audioMap[audioKey]) {
+                audioMap[audioKey].currentTime = 0;
+                audioMap[audioKey].play().catch(() => {});
+            }
+        }
+
+        function unlockAudioContext() {
+            Object.values(audioMap).forEach(a => {
+                a.play().then(() => {
+                    a.pause();
+                    a.currentTime = 0;
+                }).catch(() => {});
+            });
+            music.play().then(() => {
+                if (isMuted) music.pause();
+            }).catch(() => {});
+        }
+
+        const $ = (id) => document.getElementById(id);
+
+        $("app-title").textContent = GAME_CONFIG.title;
+        document.title = GAME_CONFIG.title;
+
+        const setupScreen = $("setup-screen");
+        const gameScreen = $("game-screen");
+        const tableBoard = $("table-board");
+        const btnJoinP1 = $("btn-join-p1");
+        const btnJoinP2 = $("btn-join-p2");
+        const btnResetGame = $("btn-reset-game");
+        const btnToggleMusic = $("btn-toggle-music");
+        const boxP1 = $("box-p1");
+        const boxP2 = $("box-p2");
+        const metaP1 = $("meta-p1");
+        const metaP2 = $("meta-p2");
+        const dotP1 = $("dot-p1");
+        const dotP2 = $("dot-p2");
+        const statusText = $("status-text");
+
+        const victoryModal = $("victory-modal");
+        const winTitle = $("win-title");
+        const winMessage = $("win-message");
+        const winScoreP1 = $("win-score-p1");
+        const winScoreP2 = $("win-score-p2");
+        const btnRestartWin = $("btn-restart-win");
+
+        function initializeRoomIfEmpty() {
+            runTransaction(roomRef, (currentData) => {
+                if (currentData === null) {
+                    return {
+                        connected: { p1: "offline", p2: "offline" },
+                        p1_score: 0,
+                        p2_score: 0,
+                        turn: "p1",
+                        status: "WAITING",
+                        winner: "",
+                        audioEvent: { name: "", id: 0 },
+                        goTriggered: false,
+                        musicStartTime: Date.now(),
+                        customData: getInitialCustomGameData()
+                    };
+                }
+                return currentData;
+            });
+        }
+
+        function playSyncAudio(audioKey) {
+            update(roomRef, {
+                audioEvent: {
+                    name: audioKey,
+                    id: Date.now() + Math.random()
+                }
+            });
+        }
+
+        function resetMatchState() {
+            update(roomRef, {
+                turn: "p1",
+                status: "IN_PROGRESS",
+                winner: "",
+                audioEvent: { name: "", id: Date.now() },
+                customData: getInitialCustomGameData()
+            });
+        }
+
+        function resetFullGameState() {
+            update(roomRef, {
+                p1_score: 0,
+                p2_score: 0,
+                turn: "p1",
+                status: "IN_PROGRESS",
+                winner: "",
+                audioEvent: { name: "", id: Date.now() },
+                goTriggered: false,
+                musicStartTime: Date.now(),
+                customData: getInitialCustomGameData()
+            });
+        }
+
+        function joinGame(playerRole) {
+            myID = playerRole;
+            unlockAudioContext();
+
+            setupScreen.style.display = "none";
+            gameScreen.style.display = "flex";
+            btnResetGame.style.display = "flex";
+            btnToggleMusic.style.display = "flex";
+
+            if (!isMuted && music.paused) {
+                music.play().catch(() => {});
+            }
+
+            initializeRoomIfEmpty();
+
+            const connectedRef = ref(db, ".info/connected");
+            const myStatusRef = ref(db, `${GAME_CONFIG.dbFolder}/connected/${myID}`);
+
+            onValue(connectedRef, (snap) => {
+                if (snap.val() === true) {
+                    onDisconnect(myStatusRef).set("offline");
+                    set(myStatusRef, "online");
+                }
+            });
+
+            onValue(roomRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    currentGameState = snapshot.val();
+                    processState(currentGameState);
+                }
+            });
+        }
+
+        function updateDotStatus(element, status) {
+            element.textContent = status === "online" ? "🟢" : (status === "afk" ? "🟡" : "🔴");
+        }
+
+        btnJoinP1.addEventListener("click", () => joinGame("p1"));
+        btnJoinP2.addEventListener("click", () => joinGame("p2"));
+
+        btnResetGame.addEventListener("click", () => {
+            resetFullGameState();
+        });
+
+        btnToggleMusic.addEventListener("click", () => {
+            isMuted = !isMuted;
+            music.muted = isMuted;
+            btnToggleMusic.textContent = isMuted ? "🔇" : "🔊";
+
+            if (!isMuted && music.paused) {
+                music.play().catch(() => {});
+            }
+        });
+
+        btnRestartWin.addEventListener("click", () => {
+            victoryModal.style.display = "none";
+            resetMatchState();
+        });
+
+        function processState(state) {
+            if (!state) return;
+
+            if (state.audioEvent && state.audioEvent.id && lastAudioEventId === 0) {
+                lastAudioEventId = state.audioEvent.id;
+            }
+
+            const connected = state.connected || {};
+            const p1Online = connected.p1 === "online";
+            const p2Online = connected.p2 === "online";
+
+            if (p1Online && p2Online && !state.goTriggered && myID === "p1") {
+                update(roomRef, {
+                    goTriggered: true,
+                    audioEvent: {
+                        name: "go",
+                        id: Date.now() + Math.random()
+                    }
+                });
+            }
+
+            if (state.musicStartTime && music.duration && !isNaN(music.duration)) {
+                const targetTime = ((Date.now() - state.musicStartTime) / 1000) % music.duration;
+                if (Math.abs(music.currentTime - targetTime) > 1.5) {
+                    music.currentTime = targetTime;
+                }
+            }
+
+            if (state.audioEvent && state.audioEvent.id && state.audioEvent.id !== lastAudioEventId) {
+                lastAudioEventId = state.audioEvent.id;
+                const audioKey = state.audioEvent.name;
+
+                if (!isMuted && audioKey) {
+                    if (audioMap[audioKey]) {
+                        audioMap[audioKey].currentTime = 0;
+                        audioMap[audioKey].play().catch(() => {});
+                    }
+                }
+            }
+
+            const scoreP1 = state.p1_score || 0;
+            const scoreP2 = state.p2_score || 0;
+            metaP1.textContent = `${scoreP1} Pts`;
+            metaP2.textContent = `${scoreP2} Pts`;
+
+            updateDotStatus(dotP1, connected.p1 || "offline");
+            updateDotStatus(dotP2, connected.p2 || "offline");
+
+            boxP1.classList.toggle("active-turn", state.turn === "p1");
+            boxP2.classList.toggle("active-turn", state.turn === "p2");
+
+            if (!p1Online && !p2Online) {
+                statusText.textContent = "Aguardando Ambos...";
+            } else if (!p1Online) {
+                statusText.textContent = "Aguardando Teuzin...";
+            } else if (!p2Online) {
+                statusText.textContent = "Aguardando Fulana...";
+            } else {
+                let opponentName = myID === "p1" ? "Fulana" : "Teuzin";
+                statusText.textContent = state.turn === myID ? "⚡ Sua vez!" : `⏳ Vez de ${opponentName}!`;
+            }
+
+            renderCustomGameBoard(state);
+
+            if (state.winner) {
+                winScoreP1.textContent = scoreP1;
+                winScoreP2.textContent = scoreP2;
+
+                if (state.winner === "draw") {
+                    winTitle.textContent = "🤝 EMPATE!";
+                    winTitle.style.color = "#c5c6c7";
+                    winMessage.textContent = "Ninguém levou essa rodada!";
+                } else if (state.winner === myID) {
+                    winTitle.textContent = "😎 VITÓRIA!";
+                    winTitle.style.color = "#00e676";
+                    winMessage.textContent = "você venceu essa rodada!";
+                } else {
+                    winTitle.textContent = "😓 DERROTA!";
+                    winTitle.style.color = "#ff1744";
+                    winMessage.textContent = "você perdeu essa rodada!";
+                }
+
+                victoryModal.style.display = "flex";
+            } else {
+                victoryModal.style.display = "none";
+            }
+        }
+
+        function isMyTurn() {
+            return currentGameState && currentGameState.turn === myID;
+        }
+
+        function canMakeMove() {
+            return isMyTurn() &&
+                   currentGameState?.connected?.p1 === "online" &&
+                   currentGameState?.connected?.p2 === "online" &&
+                   !currentGameState?.winner;
+        }
+
+        function switchTurn() {
+            const nextTurn = currentGameState.turn === "p1" ? "p2" : "p1";
+            update(roomRef, { turn: nextTurn });
+        }
+
+        function updateGameData(newCustomData) {
+            update(ref(db, `${GAME_CONFIG.dbFolder}/customData`), newCustomData);
+        }
+
+        function finishGame(winnerRole) {
+            let updates = {
+                status: "FINISHED",
+                winner: winnerRole
+            };
+
+            if (winnerRole === "p1") {
+                updates.p1_score = (currentGameState.p1_score || 0) + 1;
+                playSyncAudio("vt1");
+            } else if (winnerRole === "p2") {
+                updates.p2_score = (currentGameState.p2_score || 0) + 1;
+                playSyncAudio("vt2");
+            } else if (winnerRole === "draw") {
+                playSyncAudio("emp");
+            }
+
+            update(roomRef, updates);
+        }
+
+        function generateFullDeck() {
+            const colors = ["red", "blue", "green", "yellow"];
+            let deck = [];
+            colors.forEach(color => {
+                for (let num = 0; num <= 9; num++) {
+                    deck.push({ color, value: num });
+                    if (num !== 0) deck.push({ color, value: num });
+                }
+            });
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const temp = deck[i];
+                deck[i] = deck[j];
+                deck[j] = temp;
+            }
+            return deck;
+        }
+
+        function getInitialCustomGameData() {
+            return {
+                stage: 1,
+                deck: generateFullDeck(),
+                revealedCards: [],
+                feedback: "",
+                lastSuccess: true
+            };
+        }
+
+        function translateColor(color) {
+            const map = { red: "Vermelha", blue: "Azul", green: "Verde", yellow: "Amarela" };
+            return map[color] || color;
+        }
+
+        function handlePlayerGuess(guess) {
+            if (!canMakeMove()) return;
+
+            let customData = currentGameState.customData || getInitialCustomGameData();
+            let deck = (customData.deck && customData.deck.length > 0) ? [...customData.deck] : generateFullDeck();
+            let revealedCards = customData.revealedCards ? [...customData.revealedCards] : [];
+            let stage = customData.stage || 1;
+
+            const nextCard = deck.pop();
+            let isCorrect = false;
+            let feedbackMsg = "";
+            let sfxKey = "";
+
+            if (stage === 1) {
+                isCorrect = (nextCard.color === guess);
+                if (isCorrect) {
+                    feedbackMsg = `Boa! Cor ${translateColor(nextCard.color)} acertada!`;
+                    sfxKey = "bpc";
+                } else {
+                    feedbackMsg = `Errou! Era ${translateColor(nextCard.color)}. Passou a vez!`;
+                    sfxKey = "pep";
+                }
+            } else if (stage === 2) {
+                const card1Val = revealedCards[0].value;
+                if (guess === "higher") {
+                    isCorrect = (nextCard.value >= card1Val);
+                    sfxKey = isCorrect ? "brm" : "pnm";
+                } else {
+                    isCorrect = (nextCard.value <= card1Val);
+                    sfxKey = isCorrect ? "brn" : "pnn";
+                }
+                feedbackMsg = isCorrect ? `Boa! Carta ${nextCard.value} é ${guess === "higher" ? "maior/igual" : "menor/igual"} que ${card1Val}!` : `Errou! Carta ${nextCard.value} não é ${guess === "higher" ? "maior" : "menor"} que ${card1Val}. Passou a vez!`;
+            } else if (stage === 3) {
+                const val1 = revealedCards[0].value;
+                const val2 = revealedCards[1].value;
+                const minVal = Math.min(val1, val2);
+                const maxVal = Math.max(val1, val2);
+
+                if (guess === "inside") {
+                    isCorrect = (nextCard.value >= minVal && nextCard.value <= maxVal);
+                    sfxKey = isCorrect ? "btd" : "ptd";
+                } else {
+                    isCorrect = (nextCard.value < minVal || nextCard.value > maxVal);
+                    sfxKey = isCorrect ? "btf" : "ptf";
+                }
+                feedbackMsg = isCorrect ? `Boa! Carta ${nextCard.value} deu ${guess === "inside" ? "dentro" : "fora"} de [${minVal}, ${maxVal}]!` : `Errou! Carta ${nextCard.value} não deu ${guess === "inside" ? "dentro" : "fora"} de [${minVal}, ${maxVal}]. Passou a vez!`;
+            } else if (stage === 4) {
+                isCorrect = (nextCard.color === guess);
+                if (isCorrect) {
+                    feedbackMsg = `INCRÍVEL! Acertou a 4ª cor (${translateColor(nextCard.color)}) e VENCEU!`;
+                } else {
+                    feedbackMsg = `Errou na última etapa! Era ${translateColor(nextCard.color)}. Passou a vez!`;
+                    sfxKey = "edp";
+                }
+            }
+
+            if (sfxKey) {
+                playLocalAudio(sfxKey);
+            }
+
+            revealedCards.push(nextCard);
+
+            if (isCorrect) {
+                if (stage === 4) {
+                    updateGameData({
+                        stage: 4,
+                        deck: deck,
+                        revealedCards: revealedCards,
+                        feedback: feedbackMsg,
+                        lastSuccess: true
+                    });
+                    finishGame(myID);
+                    return;
+                } else {
+                    updateGameData({
+                        stage: stage + 1,
+                        deck: deck,
+                        revealedCards: revealedCards,
+                        feedback: feedbackMsg,
+                        lastSuccess: true
+                    });
+                }
+            } else {
+                updateGameData({
+                    stage: 1,
+                    deck: deck,
+                    revealedCards: [],
+                    feedback: feedbackMsg,
+                    lastSuccess: false
+                });
+                switchTurn();
+            }
+        }
+
+        function renderCustomGameBoard(state) {
+            const customData = state.customData || getInitialCustomGameData();
+            const stage = customData.stage || 1;
+            const revealedCards = customData.revealedCards || [];
+            const feedback = customData.feedback || "";
+            const lastSuccess = customData.lastSuccess !== false;
+            const canPlay = canMakeMove();
+
+            let stageTitles = [
+                "1ª Etapa: Qual a cor?",
+                "2ª Etapa: Maior ou Menor?",
+                "3ª Etapa: Dentro ou Fora?",
+                "4ª Etapa: Próxima Cor!"
+            ];
+
+            let html = `
+                <div class="uno-container">
+                    <div class="stage-banner">${stageTitles[stage - 1]}</div>
+
+                    <div class="cards-area">
+            `;
+
+            for (let i = 0; i < 4; i++) {
+                if (i < revealedCards.length) {
+                    const card = revealedCards[i];
+                    html += `
+                        <div class="uno-card card-${card.color}">
+                            <div class="card-inner-oval">
+                                <span class="card-val">${card.value}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="uno-card card-back">
+                            <span class="uno-card-back-title">UNO</span>
+                        </div>
+                    `;
+                }
+            }
+
+            html += `
+                    </div>
+
+                    <div class="feedback-banner ${lastSuccess ? 'feedback-success' : 'feedback-fail'}">
+                        ${feedback}
+                    </div>
+
+                    <div class="options-panel">
+            `;
+
+            if (stage === 1 || stage === 4) {
+                html += `
+                    <div class="btn-grid">
+                        <button class="opt-btn btn-red" id="btn-guess-red" ${!canPlay ? 'disabled' : ''}>🔴 Vermelho</button>
+                        <button class="opt-btn btn-blue" id="btn-guess-blue" ${!canPlay ? 'disabled' : ''}>🔵 Azul</button>
+                        <button class="opt-btn btn-green" id="btn-guess-green" ${!canPlay ? 'disabled' : ''}>🟢 Verde</button>
+                        <button class="opt-btn btn-yellow" id="btn-guess-yellow" ${!canPlay ? 'disabled' : ''}>🟡 Amarelo</button>
+                    </div>
+                `;
+            } else if (stage === 2) {
+                html += `
+                    <div class="btn-grid">
+                        <button class="opt-btn btn-action" id="btn-guess-higher" ${!canPlay ? 'disabled' : ''}>⬆ Maior / Igual</button>
+                        <button class="opt-btn btn-action" id="btn-guess-lower" ${!canPlay ? 'disabled' : ''}>⬇️ Menor / Igual</button>
+                    </div>
+                `;
+            } else if (stage === 3) {
+                html += `
+                    <div class="btn-grid">
+                        <button class="opt-btn btn-action" id="btn-guess-inside" ${!canPlay ? 'disabled' : ''}>🎯 Dentro</button>
+                        <button class="opt-btn btn-action" id="btn-guess-outside" ${!canPlay ? 'disabled' : ''}>🔄 Fora</button>
+                    </div>
+                `;
+            }
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            tableBoard.innerHTML = html;
+
+            if (canPlay) {
+                if (stage === 1 || stage === 4) {
+                    document.getElementById("btn-guess-red")?.addEventListener("click", () => handlePlayerGuess("red"));
+                    document.getElementById("btn-guess-blue")?.addEventListener("click", () => handlePlayerGuess("blue"));
+                    document.getElementById("btn-guess-green")?.addEventListener("click", () => handlePlayerGuess("green"));
+                    document.getElementById("btn-guess-yellow")?.addEventListener("click", () => handlePlayerGuess("yellow"));
+                } else if (stage === 2) {
+                    document.getElementById("btn-guess-higher")?.addEventListener("click", () => handlePlayerGuess("higher"));
+                    document.getElementById("btn-guess-lower")?.addEventListener("click", () => handlePlayerGuess("lower"));
+                } else if (stage === 3) {
+                    document.getElementById("btn-guess-inside")?.addEventListener("click", () => handlePlayerGuess("inside"));
+                    document.getElementById("btn-guess-outside")?.addEventListener("click", () => handlePlayerGuess("outside"));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
